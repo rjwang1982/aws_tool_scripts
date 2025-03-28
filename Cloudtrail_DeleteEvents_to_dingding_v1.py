@@ -1,3 +1,9 @@
+"""
+author: RJ.Wang
+Date: 2025-03-13
+email: wangrenjun@gmail.com
+Description: AWS 资源高危删除操作钉钉告警
+"""
 import json
 import urllib3
 import os
@@ -23,8 +29,10 @@ NOTIFY_DELETE_EVENTS_ONLY = os.environ.get('NOTIFY_DELETE_EVENTS_ONLY', 'True').
 DINGTALK_WEBHOOK = os.environ.get('DINGTALK_WEBHOOK')
 # 钉钉机器人密钥（从环境变量中获取，用于加签）
 DINGTALK_SECRET = os.environ.get('DINGTALK_SECRET')
-# 钉钉消息图片链接（从环境变量中获取）
-BANNER_IMAGE_URL = os.environ.get('BANNER_IMAGE_URL')
+# OK 状态图片链接（从环境变量中获取）
+OK_IMAGE_URL = os.environ.get('OK_IMAGE_URL')
+# 非 OK 状态图片链接（从环境变量中获取）
+WARNING_IMAGE_URL = os.environ.get('WARNING_IMAGE_URL')
 
 def lambda_handler(event, context):
     # 记录接收到的事件
@@ -65,7 +73,7 @@ def lambda_handler(event, context):
         event_time = convert_to_utc8(event_time)
         
         # 构造钉钉消息内容
-        message = f"![图片]({BANNER_IMAGE_URL})\n" \
+        message = f"![图片]({WARNING_IMAGE_URL})\n" \
                   f"- **事件时间**: {event_time}\n" \
                   f"- **操作名称**: {event_name}\n" \
                   f"- **用户名称**: {user_name}\n" \
@@ -125,16 +133,12 @@ def extract_deleted_resource(detail):
     response_elements = detail.get('responseElements', {})
     event_name = detail.get('eventName', '')
 
-    # 处理 response_elements 可能为 None 的情况
-    if response_elements is None:
-        response_elements = {}
-
     # 处理撤销安全组规则
     if event_name in ['RevokeSecurityGroupIngress', 'RevokeSecurityGroupEgress']:
         security_group_id = request_parameters.get('groupId', '未知安全组')
         rule_details = []
 
-        # 优先检查 responseElements['revokedSecurityGroupRuleSet']
+        # **优先检查 responseElements['revokedSecurityGroupRuleSet']**
         revoked_rules = response_elements.get('revokedSecurityGroupRuleSet', {}).get('items', [])
         if not revoked_rules:
             revoked_rules = request_parameters.get('ipPermissions', {}).get('items', [])
@@ -144,7 +148,7 @@ def extract_deleted_resource(detail):
             from_port = rule.get('fromPort', '未知端口')
             to_port = rule.get('toPort', '未知端口')
 
-            # 检查 IP 范围（优先使用 cidrIpv4 / cidrIpv6）
+            # **检查 IP 范围（优先使用 cidrIpv4 / cidrIpv6）**
             cidr_ip_list = [ip.get('cidrIp', '未知 IP') for ip in rule.get('ipRanges', {}).get('items', [])]
             if 'cidrIpv4' in rule:
                 cidr_ip_list.append(rule['cidrIpv4'])
@@ -175,9 +179,6 @@ def extract_deleted_resource(detail):
 
     elif event_name == 'DeleteLoadBalancer' and 'loadBalancerArn' in request_parameters:
         return request_parameters['loadBalancerArn']
-    
-    elif event_name == 'DeleteUser' and 'userName' in request_parameters:
-        return f"IAM 用户 {request_parameters['userName']} 已被删除"
     
     elif 'key' in request_parameters:
         return request_parameters['key']

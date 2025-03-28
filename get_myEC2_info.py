@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""
+author: RJ.Wang
+Date: 2025-03-13
+email: wangrenjun@gmail.com
+Description: 在EC2 里获取实例信息
+"""
 
 import os
 import json

@@ -1,3 +1,9 @@
+"""
+author: RJ.Wang
+Date: 2025-03-13
+email: wangrenjun@gmail.com
+Description: auto start and stop some EC2 by Lambda.
+"""
 import boto3
 import os
 import logging

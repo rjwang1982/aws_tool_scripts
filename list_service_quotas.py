@@ -1,3 +1,9 @@
+"""
+author: RJ.Wang
+Date: 2025-03-13
+email: wangrenjun@gmail.com
+Description: 在 Cloudshell 中查询当前资源配额
+"""
 import boto3
 import sys
 

@@ -1,3 +1,9 @@
+"""
+author: RJ.Wang
+Date: 2025-03-13
+email: wangrenjun@gmail.com
+Description: 在Cloudshell 中查找该 Region 所有平均 CPU 占用低于 30% 的EC2
+"""
 import boto3
 # from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
