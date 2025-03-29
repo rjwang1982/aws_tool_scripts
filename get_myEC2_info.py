@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
-"""
-author: RJ.Wang
-Date: 2025-03-13
-email: wangrenjun@gmail.com
-Description: 在EC2 里获取实例信息
-"""
 
 import os
 import json
 import subprocess
 import requests
 from datetime import datetime
+
+# 配置开关
+EXPORT_YAML = False  # 设置为True时导出YAML文件，False时只打印到屏幕
 
 try:
     import boto3
@@ -20,7 +17,7 @@ except ImportError:
 
 try:
     import yaml
-    HAS_YAML = True
+    HAS_YAML = True if EXPORT_YAML else False  # 只有需要导出YAML时才检查
 except ImportError:
     HAS_YAML = False
 
@@ -149,16 +146,20 @@ def get_aws_info():
     
     return aws_info
 
-def save_as_yaml(data, filename):
-    """将数据保存为YAML格式"""
+def save_yaml_file(data):
+    """保存YAML文件（仅在EXPORT_YAML=True时调用）"""
     if not HAS_YAML:
-        print("错误: 未安装PyYAML库，无法保存为YAML格式")
+        print("错误: 未安装PyYAML库，无法导出YAML格式")
         print("请先安装: pip install pyyaml")
         return False
     
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    yaml_filename = f'ec2_info_{timestamp}.yaml'
+    
     try:
-        with open(filename, 'w') as f:
+        with open(yaml_filename, 'w') as f:
             yaml.dump(data, f, default_flow_style=False, allow_unicode=True, sort_keys=False)
+        print(f"\n详细信息已保存到: {yaml_filename}")
         return True
     except Exception as e:
         print(f"保存YAML文件失败: {str(e)}")
@@ -215,18 +216,11 @@ def main():
     else:
         print("AWS元数据不可用")
     
-    # 保存到YAML文件
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f'ec2_info_{timestamp}.yaml'
-    
-    if save_as_yaml(data, filename):
-        print(f"\n详细信息已保存到 {filename}")
+    # 根据开关决定是否保存文件
+    if EXPORT_YAML:
+        save_yaml_file(data)
     else:
-        # 如果YAML保存失败，回退到JSON
-        filename = f'ec2_info_{timestamp}.json'
-        with open(filename, 'w') as f:
-            json.dump(data, f, indent=2)
-        print(f"\n详细信息已保存到 {filename} (JSON格式)")
+        print("\n信息已显示在屏幕上（未生成文件，如需保存请设置EXPORT_YAML=True)")
 
 if __name__ == '__main__':
     main()
