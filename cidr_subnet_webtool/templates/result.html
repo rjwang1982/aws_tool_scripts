@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subnet Results</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+        }
+        .subnet {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .subnet:last-child {
+            border-bottom: none;
+        }
+        .subnet-details {
+            margin-left: 20px;
+        }
+        .back-btn {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Subnet Results</h1>
+        {% for detail in subnet_details %}
+        <div class="subnet">
+            <strong>子网 {{ detail.subnet_index }}: {{ detail.subnet_cidr }}</strong>
+            <div class="subnet-details">
+                <p>包含 IP 数量: {{ detail.ip_count }}</p>
+                <p>网络地址: {{ detail.network_address }}</p>
+                <p>默认网关: {{ detail.gateway_address }}</p>
+                <p>广播地址: {{ detail.broadcast_address }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="back-btn">
+            <a href="{{ url_for('index') }}">Back to Calculator</a>
+        </div>
+    </div>
+</body>
+</html>

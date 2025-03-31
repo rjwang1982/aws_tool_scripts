@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# add in "/home/cloudshell-user/.bashrc"  "/bin/bash /home/cloudshell-user/cloudshell_init.sh"
 # AWS cloud shell init env
 
 # install eksctl
