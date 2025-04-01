@@ -3,10 +3,9 @@
 author: RJ.Wang
 Date: 2025-03-13
 email: wangrenjun@gmail.com
-Description: 在Cloudshell 中查找该 Region 所有平均 CPU 占用低于 30% 的EC2
+Description: 在 Cloudshell 中查找该 Region 所有平均 CPU 占用低于 30% 的 EC2 实例
 """
 import boto3
-# from datetime import datetime, timedelta
 from datetime import datetime, timedelta, timezone
 import csv
 
@@ -15,9 +14,11 @@ ec2_client = boto3.client('ec2')
 cloudwatch_client = boto3.client('cloudwatch')
 
 # 设置时间范围 - 过去 24 小时
-# end_time = datetime.utcnow()
 end_time = datetime.now(timezone.utc)  # 使用 timezone-aware 的当前 UTC 时间
 start_time = end_time - timedelta(days=1)
+
+# 开关：是否输出到 CSV 文件
+output_to_csv = False  # 默认不输出到 CSV 文件
 
 # 定义 CPU 使用率阈值
 cpu_threshold = 30.0
@@ -78,8 +79,21 @@ def write_to_csv(data, filename="low_cpu_instances.csv"):
         for instance_id, instance_name, avg_cpu in data:
             writer.writerow([instance_id, instance_name, f"{avg_cpu:.2f}"])
 
-# 获取低 CPU 使用率的实例并写入 CSV
-low_cpu_instances = find_low_cpu_instances()
-write_to_csv(low_cpu_instances)
+# 主函数
+def main():
+    low_cpu_instances = find_low_cpu_instances()
+    
+    # 默认将信息输出到屏幕
+    print(f"\n{'Instance ID':<20} {'Instance Name':<30} {'Average CPU Utilization (%)':<20}")
+    print(f"{'-' * 70}")
+    for instance_id, instance_name, avg_cpu in low_cpu_instances:
+        print(f"{instance_id:<20} {instance_name:<30} {avg_cpu:<20.2f}")
+    
+    # 如果开关设置为 True，则输出到 CSV 文件
+    if output_to_csv:
+        write_to_csv(low_cpu_instances)
+        print(f"\nResults have been saved to low_cpu_instances.csv")
 
-print(f"Results have been saved to low_cpu_instances.csv")
+# 执行主函数
+if __name__ == "__main__":
+    main()
