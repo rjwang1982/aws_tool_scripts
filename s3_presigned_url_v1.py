@@ -1,18 +1,25 @@
 import boto3
 import urllib.parse
 import os
+import sys
+from tqdm import tqdm
+import requests
+from botocore.config import Config
 
 # 配置 S3 Bucket 名称
 BUCKET_NAME = "my-lambda01"
 EXPIRATION = 3600  # 预签名 URL 有效期（秒）
 
 # 获取用户要上传的本地文件路径
-local_file_path = input("请输入要上传的文件路径: ").strip()
+if len(sys.argv) > 1:
+    local_file_path = sys.argv[1].strip()
+else:
+    local_file_path = input("请输入要上传的文件路径: ").strip()
 
 # 确保文件存在
 if not os.path.isfile(local_file_path):
     print(f"❌ 错误: 文件 '{local_file_path}' 不存在！")
-    exit(1)
+    sys.exit(1)
 
 # 提取文件名，确保 S3 保存的对象名与本地文件相同
 file_name = os.path.basename(local_file_path)
@@ -33,15 +40,23 @@ s3_client = session.client("s3")
 response = s3_client.get_bucket_location(Bucket=BUCKET_NAME)
 region = response.get("LocationConstraint", "us-east-1")  # 默认 us-east-1
 
-# 重新创建 S3 客户端，指定正确的区域
-s3_client = session.client("s3", region_name=region)
+# 重新创建 S3 客户端，指定正确的区域，并使用 virtual-host 风格
+s3_client = session.client(
+    "s3",
+    region_name=region,
+    config=Config(s3={"addressing_style": "virtual"})
+)
 
 # 生成 Pre-signed URL
-presigned_url = s3_client.generate_presigned_url(
-    "put_object",
-    Params={"Bucket": BUCKET_NAME, "Key": OBJECT_KEY},
-    ExpiresIn=EXPIRATION,
-)
+try:
+    presigned_url = s3_client.generate_presigned_url(
+        "put_object",
+        Params={"Bucket": BUCKET_NAME, "Key": OBJECT_KEY},
+        ExpiresIn=EXPIRATION,
+    )
+except Exception as e:
+    print(f"❌ 生成预签名 URL 失败: {e}")
+    sys.exit(1)
 
 # 输出调试信息
 print("=" * 50)
@@ -68,3 +83,5 @@ curl_command = f'curl -X PUT -T "{local_file_path}" "{parsed_url.geturl()}"'
 print("\n🔹 Upload with curl command:")
 print(curl_command)
 print("=" * 50)
+
+print("\n📦 请复制上面的 curl 命令在终端中执行以完成上传")
