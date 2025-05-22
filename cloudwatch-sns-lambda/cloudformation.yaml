@@ -1,0 +1,44 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudWatch 告警检测器 with SNS + 钉钉签名通知
+
+Parameters:
+  DingTalkWebhook:
+    Type: String
+    Description: 钉钉 Webhook 地址
+  DingTalkSecret:
+    Type: String
+    Description: 钉钉加签 Secret
+
+Resources:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: cloudwatch-alarm-lambda-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  AlarmCheckerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: cloudwatch_alarm_checker
+      Handler: alarm_checker.lambda_handler
+      Runtime: python3.9
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: your-lambda-code-bucket
+        S3Key: your-code-path/lambda.zip
+      Environment:
+        Variables:
+          DINGTALK_WEBHOOK: !Ref DingTalkWebhook
+          DINGTALK_SECRET: !Ref DingTalkSecret
+
+Outputs:
+  FunctionName:
+    Value: !Ref AlarmCheckerFunction

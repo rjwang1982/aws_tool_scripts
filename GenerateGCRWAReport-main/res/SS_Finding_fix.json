@@ -1,0 +1,113 @@
+{
+    "iam":[
+        {
+            "findings_name": ["hasAccessKeyNoRotate90days"],
+            "reason": "长期未旋转的访问密钥容易被滥用或泄露。如果密钥泄露，攻击者可能会获得对 AWS 资源的长期访问权限。",
+            "suggest_action": "建议定期旋转访问密钥，至少每 90 天更新一次。对于不再需要的密钥，应及时禁用或删除。此外，可以考虑使用 AWS IAM Roles 而不是长期的访问密钥，以减少风险。"
+        },
+        {
+            "findings_name": ["consoleLastAccess45", "consoleLastAccess90", "userNoActivity90days", "consoleLastAccess365"],
+            "reason": "长时间未使用的账户可能不再需要，保留这样的账户可能会增加未授权访问的风险，不需要console登陆的用户也应该尽快disable控制台的登陆权限。",
+            "suggest_action": "建议审查这些账户的必要性。如果账户确实不再需要，应该禁用或删除。如果账户仍然需要，建议提醒用户定期登录，并检查是否有未授权的访问行为。"
+        },
+        {
+            "findings_name": ["passwordLastChange365"],
+            "reason": "长期不更改密码会增加密码被破解或泄露的风险，尤其是在密码复杂度不高的情况下。",
+            "suggest_action": "建议强制用户定期更改密码，至少每 90-180 天更换一次。确保密码策略包括足够的复杂性要求，如最小长度、字母数字组合、特殊字符等。此外，可以启用多因素认证 (MFA) 来进一步提高安全性。"
+        },
+        {
+            "findings_name": ["mfaActive","rootMfaActive"],
+            "reason": "没有启用 MFA 的账户仅依赖于单一的用户名和密码进行身份验证，这样的账户更容易被攻击。",
+            "suggest_action": "建议为所有 IAM 用户启用 MFA，特别是具有管理权限的用户。MFA 增加了一层安全防护，即使用户名和密码被泄露，攻击者仍需要通过第二因素（如手机上的认证应用）来进行身份验证。"
+        },
+        {
+            "findings_name": ["rootHasAccessKey","rootConsoleLogin30days"],
+            "reason": "root用户拥有AWS账户的所有权限，拥有access key或使用root参与日常活动，泄漏会对整个AWS账户有风险，比如黑客可以删除或者启动任意AWS资源",
+            "suggest_action": "root用户权限仅控制在核心成员手中，关闭root用户access key，添加IAM用户作为管理员，避免root用户丢失后失去账户控制权限。"
+        },
+        {
+            "findings_name": ["passwordPolicy"],
+            "reason": "未设置密码策略，用户自定义密码可能比较简单，容易撞破。",
+            "suggest_action": "设置强密码策略，比如包含大小写、数字、特殊字符"
+        },
+        {
+            "findings_name": ["enableGuardDuty"],
+            "reason": "未开启账户威胁检测服务guardduty。",
+            "suggest_action": "启用guardduty服务，以便在账户密钥泄漏、服务器中病毒等情况下得到提醒"
+        }
+    ],
+    "rds":[
+        {
+            "findings_name": ["PubliclyAccessible"],
+            "reason": "RDS开启公网访问，可被公网寻址，扩大了攻击面，可能被攻击导致无法正常访问",
+            "suggest_action": "关闭RDS的公网访问，本地访问通过ssh tunnel等方式"
+        },
+        {
+            "findings_name": ["MultiAZ"],
+            "reason": "RDS未开启开启多可用区部署，RDS Multi-AZ部署可提高数据库的可用性和容错能力，通过在不同可用区自动同步备份实例，确保在主实例故障时快速切换，最小化数据库宕机时间。",
+            "suggest_action": "正式生产开启MultiAZ-RDS"
+        },
+        {
+            "findings_name": ["DefaultParams"],
+            "reason": "数据库采用了默认参数组， RDS使用参数组控制数据库参数，RDS默认参数组无法修改，建议使用自定义参数组",
+            "suggest_action": "更换参数组需要重启实例，上线前应修改使用自定义参数组"
+        },
+        {
+            "findings_name": ["Subnets3Az"],
+            "reason": "RDS的子网组需要多个AZ，如果某个AZ出现问题，数据库可以快速恢复/故障转移到另一个AZ。",
+            "suggest_action": "数据库子网组增加不同AZ的子网"
+        },
+        {
+            "findings_name": ["BurstableInstance"],
+            "reason": "有实例使用T系列可突发实例类型。T系列实例不适合需要高水平持续CPU性能的关键、生产工作负载。",
+            "suggest_action": "建议使用非突发实例类型以获得最佳性能。"
+        }
+    ],
+"ec2":
+[
+    {
+        "findings_name": ["SGAllPortOpen", "SGAllPortOpenToAll", "SGSensitivePortOpenToAll"],
+        "reason": "不必要的端口开放尤其是对所有 IP 地址开放，可能导致未授权访问，增加被攻击的风险。",
+        "suggest_action": "建议遵循最小权限原则，只开放确有必要的端口和 IP 地址访问。例如，SSH (22) 和 RDP (3389) 端口应仅对特定管理 IP 地址开放，并考虑使用 VPN 或 Bastion 主机以提高安全性。"
+    },
+    {
+        "findings_name": ["EC2InstanceAutoPublicIP"],
+        "reason": "自动分配公有 IP 会使实例暴露在互联网上，直接攻击到服务器，同时自动分配的IP重启会改变。",
+        "suggest_action": "建议禁用自动分配公有 IP，并通过 NAT 网关等方式来控制对互联网的访问，如果EC2需要被外部使用IP直接访问，则使用弹性IP避免IP变动。"
+    },
+    {
+        "findings_name": ["ELBEnableWAF"],
+        "reason": "未启用 WAF 会使应用暴露在常见的 web 攻击，如 CC Ddos攻击中，造成应用宕机。",
+        "suggest_action": "建议为所有 ALB 配置 AWS WAF 以防止这些常见的 web 攻击，并使用 WAF 规则集或自定义规则来过滤恶意流量。"
+    },
+    {
+        "findings_name": ["EC2DiskMonitor", "EC2MemoryMonitor"],
+        "reason": "默认cloudwatch未开启EC2的磁盘和存储监控或意味着未建立完整的监控系统",
+        "suggest_action": "未建设完整的监控系统，可能导致无法及时发现和解决相关的性能问题，从而影响系统稳定性、安全性和成本效益。"
+    },
+    {
+        "findings_name": ["EBSSnapshot"],
+        "reason": "未开启EBSSnapshot可能导致数据丢失风险增加，无法进行有效的数据恢复和回滚操作，影响业务连续性和灾难恢复能",
+        "suggest_action": "使用backup或者定期快照进行EBS的数据备份"
+    }
+],
+"s3":[
+    {
+        "findings_name": ["PublicAccessBlock", "PublicReadAccessBlock"],
+        "reason": "s3开放了公网匿名访问，意味着任何人都可以获取s3内的资源，可能引起黑客恶意请求，产生大量S3请求费用",
+        "suggest_action": "需要公开访问的资源通过s3+cloudfront的方式对外，保持s3私有访问，cloudfront可以配置WAF等避免被黑客CC攻击"
+    }],
+ "eks":[
+    {
+        "findings_name": ["eksEndpointPublicAccess"],
+        "reason": "eks api endpoint对外开放，容易发生DDOS攻击造成集群不稳定",
+        "suggest_action": "使用私网endpoint或者限制来源IP"
+    }],
+  "lambda":[
+    {
+        "findings_name": ["lambdaPublicAccess", "lambdaURLWithoutAuth"],
+        "reason": "lambda公开访问，任何人都可未授权调用lambda，可能引起业务异常",
+        "suggest_action": "使用iam授权或者添加auth token"
+    }
+]
+}

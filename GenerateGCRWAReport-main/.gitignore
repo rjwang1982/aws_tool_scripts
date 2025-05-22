@@ -1,0 +1,27 @@
+# Python cache directories
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python virtual environment
+venv/
+env/
+.env/
+.venv/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Local development settings
+.env
