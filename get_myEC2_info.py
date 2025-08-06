@@ -4,7 +4,7 @@ import os
 import json
 import subprocess
 import requests
-from datetime import datetime
+from datetime import datetime, timezone
 
 # 配置开关
 EXPORT_YAML = False  # 设置为True时导出YAML文件，False时只打印到屏幕
@@ -169,7 +169,7 @@ def main():
     print("正在收集EC2实例信息...\n")
     
     data = {
-        'timestamp': datetime.utcnow().isoformat() + 'Z',
+        'timestamp': datetime.now(timezone.utc).isoformat(),
         'system_info': get_system_info(),
         'aws_info': get_aws_info()
     }
