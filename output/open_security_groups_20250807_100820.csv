@@ -1,0 +1,54 @@
+Region,SecurityGroupId,SecurityGroupName,Description,VpcId,RuleType,Protocol,PortRange,FromPort,ToPort,CidrIp,RuleDescription,Tags
+ap-south-1,sg-0f64663330085f756,default,default VPC security group,vpc-0964a7d55dbe66de8,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-north-1,sg-06fe78bb3db914645,default,default VPC security group,vpc-02e2d75fe6d3d4d1f,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-west-3,sg-0694600a412d06ac2,default,default VPC security group,vpc-05d9cda0c7698eb37,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-west-2,sg-05a730c4376e57e6c,default,default VPC security group,vpc-0b18f6199907956de,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-west-1,sg-07e56ff0e250e6545,default,default VPC security group,vpc-064f7ca3f19cb9fe7,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-northeast-3,sg-0caa3f6c9cbb4cb84,default,default VPC security group,vpc-0091d60dae229c422,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-northeast-2,sg-04468e282e041da3c,default,default VPC security group,vpc-05a48b566f93e684b,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-northeast-1,sg-0abae8f73c17c9cba,default,default VPC security group,vpc-058ff67f45a301cb5,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-northeast-1,sg-04987da2342476943,k8s-elb-adafe3081233c4d9295d731b6358118d,Security group for Kubernetes ELB adafe3081233c4d9295d731b6358118d (default/my-service1),vpc-0c27740b917961e42,Inbound,tcp,8080,8080,8080,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-04987da2342476943,k8s-elb-adafe3081233c4d9295d731b6358118d,Security group for Kubernetes ELB adafe3081233c4d9295d731b6358118d (default/my-service1),vpc-0c27740b917961e42,Inbound,icmp,3-4,3,4,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-04987da2342476943,k8s-elb-adafe3081233c4d9295d731b6358118d,Security group for Kubernetes ELB adafe3081233c4d9295d731b6358118d (default/my-service1),vpc-0c27740b917961e42,Outbound,-1,All,,,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-0f7f2d295af9daae0,k8s-elb-a4555bc98153c47b6b108e01e4111b17,Security group for Kubernetes ELB a4555bc98153c47b6b108e01e4111b17 (default/my-service),vpc-0c27740b917961e42,Inbound,tcp,8080,8080,8080,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-0f7f2d295af9daae0,k8s-elb-a4555bc98153c47b6b108e01e4111b17,Security group for Kubernetes ELB a4555bc98153c47b6b108e01e4111b17 (default/my-service),vpc-0c27740b917961e42,Inbound,icmp,3-4,3,4,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-0f7f2d295af9daae0,k8s-elb-a4555bc98153c47b6b108e01e4111b17,Security group for Kubernetes ELB a4555bc98153c47b6b108e01e4111b17 (default/my-service),vpc-0c27740b917961e42,Outbound,-1,All,,,0.0.0.0/0,,"{""kubernetes.io/cluster/EKSDemoCluster"": ""owned""}"
+ap-northeast-1,sg-0424750d4a0a9d889,default,default VPC security group,vpc-0c27740b917961e42,Outbound,-1,All,,,0.0.0.0/0,,{}
+ca-central-1,sg-0814e7fdcb319ab43,default,default VPC security group,vpc-0544c8bd0f7e02c70,Outbound,-1,All,,,0.0.0.0/0,,{}
+sa-east-1,sg-0e0f5d016470b6ed5,default,default VPC security group,vpc-0fd7309c0160c93a5,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-southeast-1,sg-06102e3500e263ace,eks-cluster-sg-EKSRJ20250220-2034899622,"EKS created security group applied to ENI that is attached to EKS Control Plane master nodes, as well as any managed workloads.",vpc-078312c8a789ff849,Outbound,-1,All,,,0.0.0.0/0,,"{""Name"": ""eks-cluster-sg-EKSRJ20250220-2034899622"", ""aws:eks:cluster-name"": ""EKSRJ20250220"", ""kubernetes.io/cluster/EKSRJ20250220"": ""owned""}"
+ap-southeast-1,sg-02b079558911f8ac3,default,default VPC security group,vpc-078312c8a789ff849,Inbound,tcp,6379,6379,6379,0.0.0.0/0,,{}
+ap-southeast-1,sg-02b079558911f8ac3,default,default VPC security group,vpc-078312c8a789ff849,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-southeast-1,sg-032e457dce514c482,default,default VPC security group,vpc-03cb93548deb5007d,Inbound,tcp,80,80,80,0.0.0.0/0,,"{""Name"": ""RJtest20240919""}"
+ap-southeast-1,sg-032e457dce514c482,default,default VPC security group,vpc-03cb93548deb5007d,Inbound,tcp,22,22,22,0.0.0.0/0,,"{""Name"": ""RJtest20240919""}"
+ap-southeast-1,sg-032e457dce514c482,default,default VPC security group,vpc-03cb93548deb5007d,Inbound,tcp,5017,5017,5017,0.0.0.0/0,,"{""Name"": ""RJtest20240919""}"
+ap-southeast-1,sg-032e457dce514c482,default,default VPC security group,vpc-03cb93548deb5007d,Inbound,tcp,443,443,443,0.0.0.0/0,,"{""Name"": ""RJtest20240919""}"
+ap-southeast-1,sg-032e457dce514c482,default,default VPC security group,vpc-03cb93548deb5007d,Outbound,-1,All,,,0.0.0.0/0,,"{""Name"": ""RJtest20240919""}"
+ap-southeast-1,sg-01794d96acd1200b3,default,default VPC security group,vpc-0b8832c5f0f495c60,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-southeast-1,sg-0b7c55ed2716ee8a6,launch-wizard-3,launch-wizard-3 created 2024-11-26T03:46:06.783Z,vpc-03cb93548deb5007d,Inbound,tcp,80,80,80,0.0.0.0/0,,{}
+ap-southeast-1,sg-0b7c55ed2716ee8a6,launch-wizard-3,launch-wizard-3 created 2024-11-26T03:46:06.783Z,vpc-03cb93548deb5007d,Inbound,tcp,3389,3389,3389,0.0.0.0/0,,{}
+ap-southeast-1,sg-0b7c55ed2716ee8a6,launch-wizard-3,launch-wizard-3 created 2024-11-26T03:46:06.783Z,vpc-03cb93548deb5007d,Outbound,-1,All,,,0.0.0.0/0,,{}
+ap-southeast-2,sg-026ecef672d0ed271,default,default VPC security group,vpc-03b703cd4428d8a8d,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-central-1,sg-0891e4857aae00620,launch-wizard-1,launch-wizard-1 created 2025-02-20T02:22:53.030Z,vpc-01e502abb5251efb8,Inbound,tcp,22,22,22,0.0.0.0/0,,{}
+eu-central-1,sg-0891e4857aae00620,launch-wizard-1,launch-wizard-1 created 2025-02-20T02:22:53.030Z,vpc-01e502abb5251efb8,Outbound,-1,All,,,0.0.0.0/0,,{}
+eu-central-1,sg-0c891309696f20c22,default,default VPC security group,vpc-01e502abb5251efb8,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-east-1,sg-01e7ce016f3429b2d,launch-wizard-1,launch-wizard-1 created 2024-05-22T02:22:44.079Z,vpc-08aa485b550e871aa,Inbound,tcp,22,22,22,0.0.0.0/0,,{}
+us-east-1,sg-01e7ce016f3429b2d,launch-wizard-1,launch-wizard-1 created 2024-05-22T02:22:44.079Z,vpc-08aa485b550e871aa,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-east-1,sg-04c0e34fcf7f769b7,launch-wizard-2,launch-wizard-2 created 2024-05-23T01:56:42.736Z,vpc-08aa485b550e871aa,Inbound,tcp,0-65535,0,65535,0.0.0.0/0,,{}
+us-east-1,sg-04c0e34fcf7f769b7,launch-wizard-2,launch-wizard-2 created 2024-05-23T01:56:42.736Z,vpc-08aa485b550e871aa,Inbound,tcp,22,22,22,0.0.0.0/0,,{}
+us-east-1,sg-04c0e34fcf7f769b7,launch-wizard-2,launch-wizard-2 created 2024-05-23T01:56:42.736Z,vpc-08aa485b550e871aa,Inbound,icmp,-1,-1,-1,0.0.0.0/0,,{}
+us-east-1,sg-04c0e34fcf7f769b7,launch-wizard-2,launch-wizard-2 created 2024-05-23T01:56:42.736Z,vpc-08aa485b550e871aa,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-east-1,sg-04e3687579d6ec7e4,EDI-Server,EDI-SERVER Security,vpc-08aa485b550e871aa,Inbound,tcp,80,80,80,0.0.0.0/0,,"{""owner"": ""mike"", ""project"": ""vmware""}"
+us-east-1,sg-04e3687579d6ec7e4,EDI-Server,EDI-SERVER Security,vpc-08aa485b550e871aa,Inbound,tcp,443,443,443,0.0.0.0/0,,"{""owner"": ""mike"", ""project"": ""vmware""}"
+us-east-1,sg-04e3687579d6ec7e4,EDI-Server,EDI-SERVER Security,vpc-08aa485b550e871aa,Inbound,tcp,3389,3389,3389,0.0.0.0/0,,"{""owner"": ""mike"", ""project"": ""vmware""}"
+us-east-1,sg-04e3687579d6ec7e4,EDI-Server,EDI-SERVER Security,vpc-08aa485b550e871aa,Outbound,-1,All,,,0.0.0.0/0,,"{""owner"": ""mike"", ""project"": ""vmware""}"
+us-east-1,sg-014030a8eda4ac089,default,default VPC security group,vpc-08aa485b550e871aa,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-east-1,sg-078db461d3c1975b7,Feilian-server-SG,launch-wizard-1 created 2024-05-21T07:27:33.793Z,vpc-08aa485b550e871aa,Inbound,tcp,22,22,22,0.0.0.0/0,,{}
+us-east-1,sg-078db461d3c1975b7,Feilian-server-SG,launch-wizard-1 created 2024-05-21T07:27:33.793Z,vpc-08aa485b550e871aa,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-east-2,sg-066dcff3b36b853b2,default,default VPC security group,vpc-0bf9888dc3adb82fb,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-west-1,sg-0e3559c7099acef34,default,default VPC security group,vpc-0375d462393ae30e8,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-west-2,sg-0cf941ca26198a312,default,default VPC security group,vpc-04d05769271c33b36,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-west-2,sg-05dd5dd8a4b95676b,example-sg,Allow HTTP and HTTPS,vpc-0a138b95ad9273285,Inbound,tcp,80,80,80,0.0.0.0/0,,{}
+us-west-2,sg-05dd5dd8a4b95676b,example-sg,Allow HTTP and HTTPS,vpc-0a138b95ad9273285,Inbound,tcp,443,443,443,0.0.0.0/0,,{}
+us-west-2,sg-05dd5dd8a4b95676b,example-sg,Allow HTTP and HTTPS,vpc-0a138b95ad9273285,Outbound,-1,All,,,0.0.0.0/0,,{}
+us-west-2,sg-04876d6ee7099622d,default,default VPC security group,vpc-0a138b95ad9273285,Outbound,-1,All,,,0.0.0.0/0,,{}
