@@ -5,6 +5,8 @@
 
 import boto3
 from datetime import datetime
+from collections import Counter, defaultdict
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from botocore.exceptions import ClientError, NoCredentialsError
 
 def get_current_account_info():
@@ -32,34 +34,37 @@ def get_all_regions():
         return [boto3.Session().region_name or 'us-east-1']
 
 def get_ec2_instances_in_region(region_name):
-    """获取指定区域的EC2实例"""
+    """获取指定区域的EC2实例（支持分页）"""
     try:
         ec2 = boto3.client('ec2', region_name=region_name)
-        response = ec2.describe_instances()
+        paginator = ec2.get_paginator('describe_instances')
         
         instances = []
-        for reservation in response['Reservations']:
-            for instance in reservation['Instances']:
-                # 获取实例名称
-                name = 'N/A'
-                for tag in instance.get('Tags', []):
-                    if tag['Key'] == 'Name':
-                        name = tag['Value']
-                        break
-                
-                instances.append({
-                    'name': name,
-                    'instance_id': instance['InstanceId'],
-                    'instance_type': instance['InstanceType'],
-                    'state': instance['State']['Name'],
-                    'private_ip': instance.get('PrivateIpAddress', 'N/A'),
-                    'public_ip': instance.get('PublicIpAddress', 'N/A'),
-                    'vpc_id': instance.get('VpcId', 'N/A'),
-                    'subnet_id': instance.get('SubnetId', 'N/A'),
-                    'availability_zone': instance.get('Placement', {}).get('AvailabilityZone', 'N/A'),
-                    'launch_time': instance.get('LaunchTime', '').strftime('%Y-%m-%d %H:%M:%S') if instance.get('LaunchTime') else 'N/A',
-                    'region': region_name
-                })
+        for page in paginator.paginate():
+            for reservation in page['Reservations']:
+                for instance in reservation['Instances']:
+                    # 获取实例名称
+                    name = next((tag['Value'] for tag in instance.get('Tags', []) 
+                               if tag['Key'] == 'Name'), 'N/A')
+                    
+                    # 修复LaunchTime处理
+                    launch_time = 'N/A'
+                    if instance.get('LaunchTime'):
+                        launch_time = instance['LaunchTime'].strftime('%Y-%m-%d %H:%M:%S')
+                    
+                    instances.append({
+                        'name': name,
+                        'instance_id': instance['InstanceId'],
+                        'instance_type': instance['InstanceType'],
+                        'state': instance['State']['Name'],
+                        'private_ip': instance.get('PrivateIpAddress', 'N/A'),
+                        'public_ip': instance.get('PublicIpAddress', 'N/A'),
+                        'vpc_id': instance.get('VpcId', 'N/A'),
+                        'subnet_id': instance.get('SubnetId', 'N/A'),
+                        'availability_zone': instance.get('Placement', {}).get('AvailabilityZone', 'N/A'),
+                        'launch_time': launch_time,
+                        'region': region_name
+                    })
         
         return instances
     except ClientError as e:
@@ -70,25 +75,38 @@ def get_ec2_instances_in_region(region_name):
             print(f"错误: 访问区域 {region_name} 失败 - {e}")
         return []
 
+def collect_instances_parallel(regions, max_workers=10):
+    """并行收集所有区域的实例信息"""
+    all_instances = []
+    
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_to_region = {
+            executor.submit(get_ec2_instances_in_region, region): region 
+            for region in regions
+        }
+        
+        for future in as_completed(future_to_region):
+            region = future_to_region[future]
+            try:
+                instances = future.result()
+                if instances:
+                    print(f"区域 {region}: 找到 {len(instances)} 个实例")
+                all_instances.extend(instances)
+            except Exception as e:
+                print(f"区域 {region} 处理失败: {e}")
+    
+    return all_instances
+
 def print_summary(all_instances):
     """打印汇总信息"""
     if not all_instances:
         print("未找到任何EC2实例")
         return
     
-    # 按状态统计
-    state_count = {}
-    region_count = {}
-    type_count = {}
-    
-    for instance in all_instances:
-        state = instance['state']
-        region = instance['region']
-        instance_type = instance['instance_type']
-        
-        state_count[state] = state_count.get(state, 0) + 1
-        region_count[region] = region_count.get(region, 0) + 1
-        type_count[instance_type] = type_count.get(instance_type, 0) + 1
+    # 使用Counter进行统计
+    state_count = Counter(instance['state'] for instance in all_instances)
+    region_count = Counter(instance['region'] for instance in all_instances)
+    type_count = Counter(instance['instance_type'] for instance in all_instances)
     
     print(f"\n{'='*60}")
     print("EC2 实例汇总")
@@ -116,13 +134,10 @@ def print_detailed_info(all_instances):
     print("EC2 实例详细信息")
     print(f"{'='*60}")
     
-    # 按区域分组显示
-    regions = {}
+    # 使用defaultdict按区域分组
+    regions = defaultdict(list)
     for instance in all_instances:
-        region = instance['region']
-        if region not in regions:
-            regions[region] = []
-        regions[region].append(instance)
+        regions[instance['region']].append(instance)
     
     for region, instances in sorted(regions.items()):
         print(f"\n[区域: {region}]")
@@ -141,8 +156,6 @@ def print_detailed_info(all_instances):
             print(f"子网: {instance['subnet_id']}")
             print()
 
-
-
 def main():
     """主函数"""
     print("正在获取AWS账号EC2信息...\n")
@@ -160,12 +173,8 @@ def main():
     regions = get_all_regions()
     print(f"正在扫描 {len(regions)} 个区域...")
     
-    # 收集所有实例信息
-    all_instances = []
-    for region in regions:
-        print(f"扫描区域: {region}")
-        instances = get_ec2_instances_in_region(region)
-        all_instances.extend(instances)
+    # 并行收集所有实例信息
+    all_instances = collect_instances_parallel(regions)
     
     # 显示结果
     print_summary(all_instances)
