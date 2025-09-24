@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 获取当前AWS账号的所有EC2实例信息
 """
