@@ -38,8 +38,11 @@
 # 预览模式（推荐先执行）
 ./tag-ebs-volumes.sh --profile <profile> --region <region> --dry-run
 
-# 实际执行
+# 实际执行（跳过已有 Name 标签的卷）
 ./tag-ebs-volumes.sh --profile <profile> --region <region>
+
+# 覆盖已有 Name 标签
+./tag-ebs-volumes.sh --profile <profile> --region <region> --overwrite
 ```
 
 ---
@@ -51,6 +54,7 @@
 | `--profile` | ✅ | AWS CLI profile 名称 | `c5611` 或 `g0603` |
 | `--region` | ✅ | AWS 区域代码 | `cn-northwest-1` 或 `us-east-1` |
 | `--dry-run` | ❌ | 预览模式，不实际执行标签操作 | - |
+| `--overwrite` | ❌ | 覆盖已有 Name 标签（默认跳过） | - |
 
 ---
 
@@ -96,7 +100,17 @@ Total volumes tagged: 2
 ./tag-ebs-volumes.sh --profile g0603 --region us-east-1
 ```
 
-### 示例 4：批量处理多个区域
+### 示例 4：覆盖已有标签
+
+```bash
+# 预览覆盖模式
+./tag-ebs-volumes.sh --profile c5611 --region cn-northwest-1 --dry-run --overwrite
+
+# 实际覆盖已有标签
+./tag-ebs-volumes.sh --profile c5611 --region cn-northwest-1 --overwrite
+```
+
+### 示例 5：批量处理多个区域
 
 ```bash
 # 创建批量执行脚本
@@ -135,7 +149,8 @@ done
 
 ### 标签操作
 
-- 如果 EBS 卷已有 Name 标签，会被覆盖为实例的 Name 标签
+- **默认行为**：跳过已有 Name 标签的 EBS 卷
+- **覆盖模式**：使用 `--overwrite` 参数可覆盖已有 Name 标签
 - 只处理当前挂载到实例的 EBS 卷
 - 不会影响 EBS 卷的其他标签
 
@@ -172,7 +187,7 @@ done
 ### 常见问题
 
 **Q: 脚本会覆盖现有的 Name 标签吗？**  
-A: 是的，会用实例的 Name 标签覆盖 EBS 卷现有的 Name 标签。
+A: 默认不会，会跳过已有 Name 标签的卷。如需覆盖，请使用 `--overwrite` 参数。
 
 **Q: 如果实例没有 Name 标签会怎样？**  
 A: 脚本会跳过该实例，不会对其 EBS 卷进行任何操作。
@@ -182,6 +197,12 @@ A: 不会，只处理当前挂载到实例的 EBS 卷。
 
 **Q: 执行失败会回滚吗？**  
 A: 不会自动回滚，建议先使用 dry-run 模式预览。
+
+**Q: 如何只标记没有 Name 标签的卷？**  
+A: 默认行为就是只标记没有 Name 标签的卷，不需要额外参数。
+
+**Q: 如何强制更新所有卷的标签？**  
+A: 使用 `--overwrite` 参数即可覆盖已有的 Name 标签。
 
 ---
 

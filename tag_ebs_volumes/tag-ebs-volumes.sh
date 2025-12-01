@@ -9,6 +9,7 @@
 REGION=""
 PROFILE=""
 DRY_RUN=false
+OVERWRITE=false
 
 # 参数解析
 while [[ $# -gt 0 ]]; do
@@ -25,9 +26,13 @@ while [[ $# -gt 0 ]]; do
       DRY_RUN=true
       shift
       ;;
+    --overwrite)
+      OVERWRITE=true
+      shift
+      ;;
     *)
       echo "未知参数: $1"
-      echo "用法: $0 --profile <profile> --region <region> [--dry-run]"
+      echo "用法: $0 --profile <profile> --region <region> [--dry-run] [--overwrite]"
       exit 1
       ;;
   esac
@@ -36,12 +41,13 @@ done
 # 验证必需参数
 if [ -z "$PROFILE" ] || [ -z "$REGION" ]; then
   echo "错误: 缺少必需参数"
-  echo "用法: $0 --profile <profile> --region <region> [--dry-run]"
+  echo "用法: $0 --profile <profile> --region <region> [--dry-run] [--overwrite]"
   echo ""
   echo "参数说明:"
-  echo "  --profile  AWS CLI profile 名称 (必需)"
-  echo "  --region   AWS 区域 (必需)"
-  echo "  --dry-run  预览模式，不实际执行 (可选)"
+  echo "  --profile    AWS CLI profile 名称 (必需)"
+  echo "  --region     AWS 区域 (必需)"
+  echo "  --dry-run    预览模式，不实际执行 (可选)"
+  echo "  --overwrite  覆盖已有 Name 标签 (可选，默认跳过已有标签的卷)"
   exit 1
 fi
 
@@ -54,6 +60,11 @@ if [ "$DRY_RUN" = true ]; then
   echo "Mode: DRY RUN (Preview Only)"
 else
   echo "Mode: LIVE (Making Changes)"
+fi
+if [ "$OVERWRITE" = true ]; then
+  echo "Overwrite: YES (覆盖已有 Name 标签)"
+else
+  echo "Overwrite: NO (跳过已有 Name 标签的卷)"
 fi
 echo "========================================"
 echo ""
@@ -79,6 +90,7 @@ fi
 # 统计
 total_instances=0
 total_volumes=0
+skipped_volumes=0
 
 # 遍历每个实例
 while IFS=$'\t' read -r instance_id instance_name; do
@@ -115,17 +127,40 @@ while IFS=$'\t' read -r instance_id instance_name; do
   
   # 遍历每个卷
   for volume_id in $volumes; do
+    # 检查卷是否已有 Name 标签
+    existing_name=$(aws ec2 describe-volumes \
+      --region "$REGION" \
+      --profile "$PROFILE" \
+      --volume-ids "$volume_id" \
+      --query 'Volumes[0].Tags[?Key==`Name`].Value|[0]' \
+      --output text 2>/dev/null)
+    
+    # 如果已有 Name 标签且不覆盖，则跳过
+    if [ -n "$existing_name" ] && [ "$existing_name" != "None" ] && [ "$OVERWRITE" = false ]; then
+      echo "  ⊘ Skipped volume $volume_id (已有 Name 标签: $existing_name)"
+      skipped_volumes=$((skipped_volumes + 1))
+      continue
+    fi
+    
     total_volumes=$((total_volumes + 1))
     
     if [ "$DRY_RUN" = true ]; then
-      echo "  [DRY RUN] Would tag volume $volume_id with Name=$instance_name"
+      if [ -n "$existing_name" ] && [ "$existing_name" != "None" ]; then
+        echo "  [DRY RUN] Would overwrite volume $volume_id Name: $existing_name -> $instance_name"
+      else
+        echo "  [DRY RUN] Would tag volume $volume_id with Name=$instance_name"
+      fi
     else
       if aws ec2 create-tags \
         --region "$REGION" \
         --profile "$PROFILE" \
         --resources "$volume_id" \
         --tags "Key=Name,Value=$instance_name" 2>/dev/null; then
-        echo "  ✓ Tagged volume $volume_id with Name=$instance_name"
+        if [ -n "$existing_name" ] && [ "$existing_name" != "None" ]; then
+          echo "  ✓ Overwritten volume $volume_id Name: $existing_name -> $instance_name"
+        else
+          echo "  ✓ Tagged volume $volume_id with Name=$instance_name"
+        fi
       else
         echo "  ✗ Failed to tag volume $volume_id"
       fi
@@ -142,4 +177,5 @@ echo "Summary"
 echo "========================================"
 echo "Total instances processed: $total_instances"
 echo "Total volumes tagged: $total_volumes"
+echo "Total volumes skipped: $skipped_volumes"
 echo "========================================"
