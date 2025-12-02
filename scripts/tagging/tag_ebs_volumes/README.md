@@ -29,6 +29,8 @@
 
 ## 使用示例
 
+### 基本用法
+
 ```bash
 # 中国区预览
 ./tag-ebs-volumes.sh --profile c5611 --region cn-northwest-1 --dry-run
@@ -39,6 +41,24 @@
 # Global 区执行
 ./tag-ebs-volumes.sh --profile g0603 --region us-east-1
 ```
+
+### 执行效果示例
+
+以下是在中国区（宁夏）执行 dry-run 模式的实际输出：
+
+![Dry Run 执行示例](images/dry-run-example.png)
+
+**执行命令**：
+```bash
+bash scripts/tagging/tag_ebs_volumes/tag-ebs-volumes.sh --profile c5611 --region cn-northwest-1 --dry-run
+```
+
+**执行结果**：
+- 处理的实例数：7 个
+- 将要标记的卷数：8 个
+- 跳过的卷数：0 个
+
+脚本会显示每个实例及其关联的 EBS 卷，并在 dry-run 模式下预览将要执行的标签操作，不会实际修改任何资源。
 
 ## 所需权限
 
