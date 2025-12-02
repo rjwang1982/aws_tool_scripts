@@ -1,0 +1,36 @@
+# IDE 配置
+.kiro/
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# 输出文件
+output/
+*.csv
+*.xlsx
+*.log
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# AWS 凭证
+credentials.py
+*.pem
+*.key
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
