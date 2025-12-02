@@ -151,6 +151,8 @@ aws cloudwatch describe-alarms \
 
 ### 步骤 5: 验证告警
 
+**通过 AWS CLI**:
+
 ```bash
 # 查看所有 EBS 告警
 aws cloudwatch describe-alarms \
@@ -166,6 +168,14 @@ aws cloudwatch describe-alarm-history \
   --max-records 5 \
   --region ap-southeast-1
 ```
+
+**通过 AWS 控制台**:
+
+1. 登录 AWS 控制台
+2. 进入 CloudWatch 服务
+3. 左侧菜单选择"告警" → "所有告警"
+4. 搜索 `EBS-vol-` 找到你的告警
+5. 点击告警名称查看详情
 
 ---
 
@@ -217,7 +227,27 @@ Alarm Details:
   than the threshold (3000.0)
 ```
 
----
+### CloudWatch 控制台视图
+
+在 AWS CloudWatch 控制台中，你可以看到：
+
+1. **告警列表**：
+   - 告警名称：`EBS-vol-0cc377afd67b3d537-IOPS-High-Alarm`
+   - 状态：ALARM（红色）或 OK（绿色）
+   - 描述：GP3 卷 IOPS 超过 3000
+
+2. **告警详情页**：
+   - **图表**：显示 Total IOPS 随时间变化
+   - **阈值线**：3000 IOPS（红色虚线）
+   - **当前值**：实时 IOPS 数据点
+   - **时间范围**：可选择 1小时、3小时、12小时、1天等
+
+3. **操作配置**：
+   - 告警时：发送到 SNS 主题
+   - 恢复时：发送到 SNS 主题
+   - 数据不足时：不触发告警
+
+
 
 ## 🛠️ 故障排查
 

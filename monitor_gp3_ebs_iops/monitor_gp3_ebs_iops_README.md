@@ -108,6 +108,32 @@ AWS_PROFILE=c5611 python monitor_gp3_ebs_iops.py
 
 ---
 
+## 🎨 CloudWatch 控制台示例
+
+### 告警创建成功后的效果
+
+运行脚本后，在 AWS CloudWatch 控制台可以看到创建的告警：
+
+**告警列表视图**：
+- 告警名称：`EBS-vol-0cc377afd67b3d537-IOPS-High-Alarm`
+- 状态：正常（绿色）或告警（红色）
+- 指标：Total IOPS
+
+**告警详情页面**：
+- 图表显示：Total IOPS 趋势图
+- 阈值线：3000 IOPS（红色虚线）
+- 当前值：实时 IOPS 数据
+- 操作配置：
+  - 告警时：发送 SNS 通知到 `arn:aws:sns:ap-southeast-1:269490040603:alarmbyrj20250225`
+  - 恢复时：同样发送 SNS 通知
+
+**指标数学表达式**：
+```
+Total IOPS = (VolumeReadOps + VolumeWriteOps) / Period
+```
+
+---
+
 ## 📊 输出示例
 
 ### 正常运行输出
