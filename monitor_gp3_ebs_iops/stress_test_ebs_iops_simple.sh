@@ -15,16 +15,44 @@ echo ""
 
 # 创建测试目录
 TEST_DIR="/tmp/ebs_iops_test"
+
+# 清理旧的测试文件
+if [ -d "$TEST_DIR" ]; then
+    echo "清理旧的测试文件..."
+    rm -rf "$TEST_DIR"
+fi
+
 mkdir -p "$TEST_DIR"
 
+# 检查可用磁盘空间
+AVAILABLE_SPACE_KB=$(df "$TEST_DIR" | tail -1 | awk '{print $4}')
+AVAILABLE_SPACE_GB=$((AVAILABLE_SPACE_KB / 1024 / 1024))
+
+echo "可用磁盘空间: ${AVAILABLE_SPACE_GB} GB"
+
+# 根据可用空间调整并发数
+if [ $AVAILABLE_SPACE_GB -lt 2 ]; then
+    echo "❌ 错误: 可用空间不足 2GB"
+    exit 1
+elif [ $AVAILABLE_SPACE_GB -lt 5 ]; then
+    PARALLEL_JOBS=4
+    BLOCK_COUNT=500
+elif [ $AVAILABLE_SPACE_GB -lt 10 ]; then
+    PARALLEL_JOBS=8
+    BLOCK_COUNT=800
+else
+    PARALLEL_JOBS=16
+    BLOCK_COUNT=1000
+fi
+
 # 配置参数
-DURATION=${1:-300}  # 默认运行 5 分钟
-PARALLEL_JOBS=16    # 并发任务数
+DURATION=${1:-1800}  # 默认运行 30 分钟（1800秒）
 
 echo "测试配置:"
 echo "  测试目录: $TEST_DIR"
 echo "  运行时长: $DURATION 秒"
 echo "  并发任务: $PARALLEL_JOBS"
+echo "  每次写入: ${BLOCK_COUNT} 个 4KB 块"
 echo ""
 
 echo "当前磁盘信息:"
@@ -55,7 +83,7 @@ for i in $(seq 1 $PARALLEL_JOBS); do
     (
         while [ $(date +%s) -lt $END_TIME ]; do
             # 随机读写，4KB 块大小
-            dd if=/dev/urandom of="$TEST_DIR/testfile_$i" bs=4k count=1000 oflag=direct 2>/dev/null
+            dd if=/dev/urandom of="$TEST_DIR/testfile_$i" bs=4k count=$BLOCK_COUNT oflag=direct 2>/dev/null
             dd if="$TEST_DIR/testfile_$i" of=/dev/null bs=4k iflag=direct 2>/dev/null
         done
     ) &
