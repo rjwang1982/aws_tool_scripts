@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "aws-tools": {
-      "command": "python",
-      "args": ["mcp_server.py"],
-      "cwd": "/Users/rj/SyncSpace/WorkSpace/GitHub/aws_tool_scripts"
-    }
-  }
-}
