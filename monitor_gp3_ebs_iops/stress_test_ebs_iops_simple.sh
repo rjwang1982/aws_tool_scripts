@@ -13,8 +13,8 @@ echo "EBS IOPS 简单压力测试"
 echo "=========================================="
 echo ""
 
-# 创建测试目录
-TEST_DIR="/tmp/ebs_iops_test"
+# 创建测试目录（使用 /var/tmp 而不是 /tmp，因为 /tmp 可能是 tmpfs）
+TEST_DIR="/var/tmp/ebs_iops_test"
 
 # 清理旧的测试文件
 if [ -d "$TEST_DIR" ]; then
