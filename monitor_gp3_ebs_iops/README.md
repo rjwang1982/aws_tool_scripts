@@ -52,7 +52,10 @@ ssh ec2-user@<ec2-ip>
 sudo bash /tmp/stress_test_ebs_iops.sh
 
 # 自定义时长（例如 10 分钟）
-sudo bash /tmp/stress_test_ebs_iops.sh 600
+sudo bash /tmp/stress_test_ebs_iops.sh 10
+
+# 自定义时长（例如 60 分钟）
+sudo bash /tmp/stress_test_ebs_iops.sh 60
 ```
 
 ---

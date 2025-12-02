@@ -99,15 +99,18 @@ if [ $AVAILABLE_SPACE_GB -lt 2 ]; then
 elif [ $AVAILABLE_SPACE_GB -lt 5 ]; then
     echo "⚠️  可用空间较少，使用小文件模式"
     FILE_SIZE="128M"
-    NUM_JOBS=4
+    NUM_JOBS=8
+    IO_DEPTH=64
 elif [ $AVAILABLE_SPACE_GB -lt 10 ]; then
     echo "✓ 可用空间适中，使用标准模式"
     FILE_SIZE="256M"
-    NUM_JOBS=6
+    NUM_JOBS=12
+    IO_DEPTH=64
 else
     echo "✓ 可用空间充足，使用高性能模式"
     FILE_SIZE="512M"
-    NUM_JOBS=8
+    NUM_JOBS=16
+    IO_DEPTH=128
 fi
 
 TOTAL_SIZE_MB=$((${FILE_SIZE%M} * NUM_JOBS))
@@ -115,19 +118,19 @@ echo "预计使用空间: ${TOTAL_SIZE_MB} MB (${NUM_JOBS} 个任务 × ${FILE_S
 echo ""
 
 # 配置参数
-DURATION=${1:-1800}  # 默认运行 30 分钟（1800秒）
-TARGET_IOPS=3500     # 目标 IOPS（超过 3000 阈值）
+DURATION_MINUTES=${1:-30}  # 默认运行 30 分钟
+DURATION=$((DURATION_MINUTES * 60))  # 转换为秒
 BLOCK_SIZE="4k"      # 4KB 块大小（典型的随机 IO）
 
 echo "=========================================="
 echo "测试配置"
 echo "=========================================="
 echo "测试目录: $TEST_DIR"
-echo "运行时长: $DURATION 秒"
-echo "目标 IOPS: $TARGET_IOPS"
+echo "运行时长: $DURATION_MINUTES 分钟 ($DURATION 秒)"
 echo "块大小: $BLOCK_SIZE"
 echo "文件大小: $FILE_SIZE"
 echo "并发任务: $NUM_JOBS"
+echo "IO 深度: $IO_DEPTH"
 echo "预计空间: ${TOTAL_SIZE_MB} MB"
 echo "=========================================="
 echo ""
@@ -164,11 +167,10 @@ fio --name=iops_stress_test \
     --direct=1 \
     --verify=0 \
     --bs=$BLOCK_SIZE \
-    --iodepth=32 \
+    --iodepth=$IO_DEPTH \
     --rw=randrw \
     --rwmixread=70 \
-    --group_reporting \
-    --rate_iops=$TARGET_IOPS
+    --group_reporting
 
 echo ""
 echo "=========================================="
